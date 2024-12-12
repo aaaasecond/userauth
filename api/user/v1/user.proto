@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package userauth.api.user.v1;
+
+option go_package = "userauth/api/user/v1;v1";
+
+import "google/api/annotations.proto";
+
+
+service UserService {
+//  rpc AddUser(AddUserRequest) returns (AddUserReply);
+//  rpc AuthenticateUser(AuthenticateUserRequest) returns (AuthenticateUserReply);
+
+// 添加用户
+    rpc AddUser(AddUserRequest) returns (AddUserReply) {
+        option (google.api.http) = {
+          post: "/v1/user/create"
+          body: "*"
+        };
+    }
+    // 用户认证
+    rpc AuthenticateUser(AuthenticateUserRequest) returns (AuthenticateUserReply) {
+        option (google.api.http) = {
+          post: "/v1/user/login"
+          body: "*"
+        };
+    }
+}
+
+message AddUserRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message AddUserReply {
+  string message = 1;
+}
+
+message AuthenticateUserRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message AuthenticateUserReply {
+  bool authenticated = 1;
+}
+
