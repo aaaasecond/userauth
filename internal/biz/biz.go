@@ -12,6 +12,7 @@ var ProviderSet = wire.NewSet(NewUserUseCase)
 type UserRepo interface {
 	AddUser(ctx context.Context, username, password string) error
 	AuthenticateUser(ctx context.Context, username, password string) (bool, error)
+	DeleteUser(ctx context.Context, username string) error
 }
 
 type UserUseCase struct {
@@ -34,3 +35,6 @@ func (uc *UserUseCase) AuthenticateUser(ctx context.Context, username, password 
 	return uc.repo.AuthenticateUser(ctx, username, password)
 }
 
+func (uc *UserUseCase) DeleteUser(ctx context.Context, username string) error {
+	return uc.repo.DeleteUser(ctx, username)
+}

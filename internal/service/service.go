@@ -40,3 +40,10 @@ func (s *UserService) AuthenticateUser(ctx context.Context, req *v1.Authenticate
 	return &v1.AuthenticateUserReply{Authenticated: authenticated}, nil
 }
 
+func (s *UserService) DeleteUser(ctx context.Context, req *v1.DeleteUserRequest) (*v1.DeleteUserReply, error) {
+	err := s.uc.DeleteUser(ctx, req.Username)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.DeleteUserReply{Message: "User deleted successfully"}, nil
+}

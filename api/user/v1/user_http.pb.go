@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-http v2.8.2
 // - protoc             v5.29.1
-// source: user.proto
+// source: api/user/v1/user.proto
 
 package v1
 
@@ -21,18 +21,22 @@ const _ = http.SupportPackageIsVersion1
 
 const OperationUserServiceAddUser = "/userauth.api.user.v1.UserService/AddUser"
 const OperationUserServiceAuthenticateUser = "/userauth.api.user.v1.UserService/AuthenticateUser"
+const OperationUserServiceDeleteUser = "/userauth.api.user.v1.UserService/DeleteUser"
 
 type UserServiceHTTPServer interface {
 	// AddUser 添加用户
 	AddUser(context.Context, *AddUserRequest) (*AddUserReply, error)
 	// AuthenticateUser 用户认证
 	AuthenticateUser(context.Context, *AuthenticateUserRequest) (*AuthenticateUserReply, error)
+	// DeleteUser 删除用户
+	DeleteUser(context.Context, *DeleteUserRequest) (*DeleteUserReply, error)
 }
 
 func RegisterUserServiceHTTPServer(s *http.Server, srv UserServiceHTTPServer) {
 	r := s.Route("/")
 	r.POST("/v1/user/create", _UserService_AddUser0_HTTP_Handler(srv))
 	r.POST("/v1/user/login", _UserService_AuthenticateUser0_HTTP_Handler(srv))
+	r.DELETE("/v1/user/{username}", _UserService_DeleteUser0_HTTP_Handler(srv))
 }
 
 func _UserService_AddUser0_HTTP_Handler(srv UserServiceHTTPServer) func(ctx http.Context) error {
@@ -79,9 +83,32 @@ func _UserService_AuthenticateUser0_HTTP_Handler(srv UserServiceHTTPServer) func
 	}
 }
 
+func _UserService_DeleteUser0_HTTP_Handler(srv UserServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in DeleteUserRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationUserServiceDeleteUser)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.DeleteUser(ctx, req.(*DeleteUserRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*DeleteUserReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 type UserServiceHTTPClient interface {
 	AddUser(ctx context.Context, req *AddUserRequest, opts ...http.CallOption) (rsp *AddUserReply, err error)
 	AuthenticateUser(ctx context.Context, req *AuthenticateUserRequest, opts ...http.CallOption) (rsp *AuthenticateUserReply, err error)
+	DeleteUser(ctx context.Context, req *DeleteUserRequest, opts ...http.CallOption) (rsp *DeleteUserReply, err error)
 }
 
 type UserServiceHTTPClientImpl struct {
@@ -112,6 +139,19 @@ func (c *UserServiceHTTPClientImpl) AuthenticateUser(ctx context.Context, in *Au
 	opts = append(opts, http.Operation(OperationUserServiceAuthenticateUser))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *UserServiceHTTPClientImpl) DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...http.CallOption) (*DeleteUserReply, error) {
+	var out DeleteUserReply
+	pattern := "/v1/user/{username}"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationUserServiceDeleteUser))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "DELETE", path, nil, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

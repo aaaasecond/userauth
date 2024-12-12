@@ -9,6 +9,7 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
+
 var ProviderSet = wire.NewSet(NewData, NewUserRepo)
 
 type User struct {
@@ -35,6 +36,10 @@ func (r *userRepo) AuthenticateUser(ctx context.Context, username, password stri
 	return user.Password == password, nil
 }
 
+func (r *userRepo) DeleteUser(ctx context.Context, username string) error {
+	return r.data.db.WithContext(ctx).Where("username = ?", username).Delete(&User{}).Error
+}
+
 func NewUserRepo(data *Data, logger log.Logger) biz.UserRepo {
 	return &userRepo{
 		data: data,
@@ -53,4 +58,3 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 	}
 	return &Data{db: db}, func() {}, nil
 }
-

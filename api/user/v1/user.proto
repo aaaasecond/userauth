@@ -25,6 +25,12 @@ service UserService {
           body: "*"
         };
     }
+    // 删除用户
+    rpc DeleteUser(DeleteUserRequest) returns (DeleteUserReply) {
+        option (google.api.http) = {
+          delete: "/v1/user/{username}"
+        };
+    }
 }
 
 message AddUserRequest {
@@ -45,3 +51,10 @@ message AuthenticateUserReply {
   bool authenticated = 1;
 }
 
+message DeleteUserRequest {
+  string username = 1;
+}
+
+message DeleteUserReply {
+  string message = 1;
+}
